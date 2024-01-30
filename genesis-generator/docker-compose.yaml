@@ -1,0 +1,10 @@
+version: "3"
+services:
+  reltime_node:
+    image: hyperledger/besu
+    container_name: "genesis-generator"
+    volumes:
+      - .:/usr/app/
+    command: operator generate-blockchain-config --config-file=/usr/app/qbftConfig.json --to=/usr/app/networkFiles --private-key-file-name=key
+volumes:
+  .:

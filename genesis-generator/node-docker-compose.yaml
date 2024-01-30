@@ -1,0 +1,10 @@
+version: "3"
+services:
+  node:
+    image:
+    container_name:
+    volumes:
+      - .:/usr/app/
+    command: --config-file=/usr/app/config.toml
+volumes:
+  .:
