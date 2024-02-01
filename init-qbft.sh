@@ -13,8 +13,8 @@ else
 
     sed -i "s#image:.*#image: $1#" docker-compose.yaml #Set image name
 
-    docker rm -f node-1 node-2 node-3 node-4 > /dev/null 2>&1 #Delete previous containers with the same name
-    docker-compose up
+    docker rm -f node-1 node-2 node-3 node-4 genesis-generator > /dev/null 2>&1 #Delete previous containers with the same name
+    docker compose up
 
     #Nodes Creation
     count=1
@@ -36,7 +36,7 @@ else
 
     #Start node-1 to get enode
     cd ../node-1
-    enode=$(timeout 10s docker-compose up | grep "Enode URL" | cut -d "|" -f6 | cut -d " " -f4)
+    enode=$(timeout 10s docker compose up | grep "Enode URL" | cut -d "|" -f6 | cut -d " " -f4)
 
     #Set bootnodes in nodes 2, 3 and 4
     for node in {2..4}; do
@@ -44,10 +44,10 @@ else
     done
 
     cd ..
-    docker rm node-1 node-2 node-3 node-4 > /dev/null 2>&1 #To avoid errors, delete previous containers with the same name
+    docker rm node-1 node-2 node-3 node-4 genesis-generator > /dev/null 2>&1 #To avoid errors, delete previous containers with the same name
 
     #Start QBFT Network
-    docker-compose up
+    docker compose up
 fi
 
 
