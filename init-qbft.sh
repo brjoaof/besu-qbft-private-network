@@ -34,16 +34,16 @@ else
         ((p2p_port++))
     done
 
-    #Start node-1 to get enode
-    cd ../node-1
-    enode=$(timeout 10s docker compose up | grep "Enode URL" | cut -d "|" -f6 | cut -d " " -f4)
+    #Get enode
+    cd ../node-1/data
+    enode=$(cut -c3- < key.pub)
 
-    #Set bootnodes in nodes 2, 3 and 4
+    #Set bootnodes in nodes 2, 3 and 4. (localhost:127.0.0.1 - P2P Port node-1:30303)
+    cd ../../
     for node in {2..4}; do
-        echo -e "\n\nbootnodes=[\"$enode\"]" >> ../node-$node/config.toml
+        echo -e "\n\nbootnodes=[\"enode://$enode@127.0.0.1:30303\"]" >> node-$node/config.toml
     done
 
-    cd ..
     docker rm node-1 node-2 node-3 node-4 genesis-generator > /dev/null 2>&1 #To avoid errors, delete previous containers with the same name
 
     #Start QBFT Network
