@@ -4,7 +4,8 @@
 if [ "$1" == "" ]; then
     echo ""
     echo "Usage: $0 besu-image-name"
-    echo "Example: $0 hyperledger/besu"
+    echo "Example: $0 hyperledger/besu dilithium"
+    echo "PQC(optional): dilithium or sphincsplus or falcon"
     echo ""
 else
     #Genesis Generation
@@ -12,6 +13,12 @@ else
     rm -rf networkFiles #Delete previous directory
 
     sed -i "s#image:.*#image: $1#" docker-compose.yaml #Set image name
+    #Set --pqc-algorithm-name if $2 exists 
+    if [ "$2" != "" ]; then
+        sed -i "s#command:.*#command: operator generate-blockchain-config --config-file=/usr/app/qbftConfig.json --to=/usr/app/networkFiles --private-key-file-name=key --pqc-algorithm-name=\"$2\"#" docker-compose.yaml
+    else
+        sed -i "s#command:.*#command: operator generate-blockchain-config --config-file=/usr/app/qbftConfig.json --to=/usr/app/networkFiles --private-key-file-name=key#" docker-compose.yaml
+    fi
 
     docker rm -f node-1 node-2 node-3 node-4 genesis-generator > /dev/null 2>&1 #Delete previous containers with the same name
     docker compose up
@@ -27,6 +34,10 @@ else
         cp -rf $dir/* ../node-$count/data/ #Copy all files to /data 
         #Set http and p2p port in node config.toml
         sed -e "s#rpc-http-port.*#rpc-http-port=$rpc_http_port#" -e "s#p2p-port=.*#p2p-port=$p2p_port#" config.toml > ../node-$count/config.toml 
+        #Set PQC algorithm name in node config.toml
+        if [ "$2" != "" ]; then 
+            echo -e "\npqc-algorithm-name=\"$2\"" >> ../node-$count/config.toml 
+        fi
         #Set the image name in the node docker-compose.yaml
         sed -e "s#image:.*#image: $1#" -e "s#container_name:.*#container_name: node-$count#" node-docker-compose.yaml > ../node-$count/docker-compose.yaml
         ((count++))

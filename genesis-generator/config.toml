@@ -13,3 +13,4 @@ host-allowlist=["*"]
 genesis-file="/usr/app/genesis.json"
 
 min-gas-price=0
+
